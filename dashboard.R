@@ -1,4 +1,4 @@
-list.of.packages <- c("shiny", "shinydashboard", "raster", "rgdal", "sp", "leaflet", "geojsonio", "markdown", "ggplot2")
+list.of.packages <- c("shiny", "shinydashboard", "raster", "rgdal", "sp", "leaflet", "geojsonio", "markdown", "ggplot2","DT","forcats")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -12,9 +12,13 @@ library(geojsonio)
 library(markdown)
 library(ggplot2)
 library(dplyr)
+library(DT)
+library(forcats)
 
 fm <- geojsonio::geojson_read("data/fm_guides_r.geojson", what = "sp")
 fg.data <- read.csv("data/FG_Category_Counry_cleaned_3.12.2019.csv")
+fg.data$guide_no <-as.character(fg.data$guide_no)
+
 
 ui <- dashboardPage(
   
@@ -24,13 +28,10 @@ ui <- dashboardPage(
                    selectInput(inputId = "variableselected", label = "Select country", 
                                choices = fm$admin),
                    textOutput("selected_var"),
-                   plotOutput("PieChart")),
-                   #selectInput("cInput", "Select an Inventory", choices = unique(data$country)),
-                   #selectInput(inputId = "YInput", label = "Select Field Guides",
-                   #            choices = data$guide_no),
+                   plotOutput("PieChart"),
+                   DT::dataTableOutput("link_list")
+                   ),
                    
-                   #plotOutput("PieChart"),
-  
   dashboardBody(
     fluidPage(
       tags$style(type = "text/css", "#map {height: calc(100vh - 20px) !important;}"),
@@ -101,6 +102,15 @@ server <- function(input, output, session) {
       theme_bw() + theme(legend.text=element_text(size=rel(1.2))) +theme(legend.title=element_text(size=15))
   }) 
   
+
+output$link_list <- DT::renderDataTable({
+    fg.data %>%subset(Countries == input$variableselected) %>%
+    dplyr::mutate(URL = paste0("https://fieldguides.fieldmuseum.org/guides/guide/", guide_no)) %>%
+    dplyr::mutate(URL = paste0("<a href='", URL, "'>",guide_no,"</a>"))%>%
+    dplyr::select(URL)
+}, escape = FALSE)
 }
 
 shinyApp(ui = ui, server = server)
+
+
