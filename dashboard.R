@@ -28,14 +28,15 @@ ui <- dashboardPage(
                    selectInput(inputId = "variableselected", label = "Select country", 
                                choices = fm$admin),
                    textOutput("selected_var"),
-                   plotOutput("PieChart"),
-                   DT::dataTableOutput("link_list")
+                   plotOutput("PieChart")
+                   
                    ),
                    
   dashboardBody(
     fluidPage(
       tags$style(type = "text/css", "#map {height: calc(100vh - 20px) !important;}"),
-      leafletOutput("map")
+      leafletOutput("map"),
+      DT::dataTableOutput("link_list")
     )
   )
 )
@@ -106,8 +107,8 @@ server <- function(input, output, session) {
 output$link_list <- DT::renderDataTable({
     fg.data %>%subset(Countries == input$variableselected) %>%
     dplyr::mutate(URL = paste0("https://fieldguides.fieldmuseum.org/guides/guide/", guide_no)) %>%
-    dplyr::mutate(URL = paste0("<a href='", URL, "'>",guide_no,"</a>"))%>%
-    dplyr::select(URL)
+    dplyr::mutate(URL = paste0("<a href='", URL, "'>",URL,"</a>"))%>%
+    dplyr::select(guide_title,guide_no,URL, Category)
 }, escape = FALSE)
 }
 
