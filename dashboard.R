@@ -103,7 +103,6 @@ server <- function(input, output, session) {
       theme_bw() + theme(legend.text=element_text(size=rel(1.2))) +theme(legend.title=element_text(size=15))
   }) 
   
-
 output$link_list <- DT::renderDataTable({
     fg.data %>%  
     dplyr::select(-category,-country,-state, -language, -date_created) %>%
