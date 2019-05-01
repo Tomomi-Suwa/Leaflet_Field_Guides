@@ -105,10 +105,12 @@ server <- function(input, output, session) {
   
 
 output$link_list <- DT::renderDataTable({
-    fg.data %>%subset(Countries == input$variableselected) %>%
+    fg.data %>%  
+    dplyr::select(-category,-country,-state, -language, -date_created) %>%
     dplyr::mutate(URL = paste0("https://fieldguides.fieldmuseum.org/guides/guide/", guide_no)) %>%
-    dplyr::mutate(URL = paste0("<a href='", URL, "'>",URL,"</a>"))%>%
-    dplyr::select(guide_title,guide_no,URL, Category)
+    dplyr::mutate(title = paste0("<a href='", URL, "'>",guide_title,"</a>")) %>% 
+    dplyr::select(title, guide_no, page_no,Category) %>% 
+    dplyr :: rename(Title = title, Guide_No = guide_no,Page_Number = page_no)
 }, escape = FALSE)
 }
 
